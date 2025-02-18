@@ -24,6 +24,33 @@ def compute_cross_correlation(watermark, voice):
     return cross_corr, lags
 
 
+def find_possible_watermark_start(watermark_signal, voice_signal, top_k=2, sr=8000):
+    # Normalize the signals
+    watermark_signal = normalize_audio(watermark_signal)
+    voice_signal = normalize_audio(voice_signal)
+
+    # Compute cross-correlation
+    cross_corr, lags = compute_cross_correlation(
+        watermark_signal, voice_signal)
+
+    possible_start_times = []
+
+    for iter_idx in range(top_k):
+        # Find the best match (maximum cross-correlation value and corresponding lag)
+        max_corr_idx = np.argmax(cross_corr)
+        max_corr_lag = lags[max_corr_idx]
+
+        start_watermark_time = (
+            max_corr_lag + len(voice_signal) - len(watermark_signal)) / sr
+
+        possible_start_times.append(start_watermark_time)
+
+        # clean max area
+        cross_corr[max_corr_idx - len(watermark_signal)                   : max_corr_idx + len(watermark_signal)] = 0
+    print('start', possible_start_times)
+    return possible_start_times
+
+
 def main(watermark_path, voice_path, iter_count=2, sr=8000):
     # Load and preprocess the audio
     watermark_signal, _ = load_audio(watermark_path, sr)
@@ -50,11 +77,12 @@ def main(watermark_path, voice_path, iter_count=2, sr=8000):
         possible_start_end_pairs.append(
             (start_watermark_time, end_watermark_time))
         # Visualize the cross-correlation
-        cross_corr[max_corr_idx - len(watermark_signal): max_corr_idx + len(watermark_signal)] = 0
+        cross_corr[max_corr_idx - len(watermark_signal)                   : max_corr_idx + len(watermark_signal)] = 0
 
     return possible_start_end_pairs
+
 
 if __name__ == '__main__':
     watermarks_paths = ['watermark_1.mp3', 'watermark_2.mp3']
     for watermark in watermarks_paths:
-        print(main(watermark, './1/1.mp4', iter_count=2))
+        print(main(watermark, './1/Goblin.mp4', iter_count=2))
