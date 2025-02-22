@@ -46,7 +46,7 @@ def find_possible_watermark_start(watermark_signal, voice_signal, top_k=2, sr=80
         possible_start_times.append(start_watermark_time)
 
         # clean max area
-        cross_corr[max_corr_idx - len(watermark_signal)                   : max_corr_idx + len(watermark_signal)] = 0
+        cross_corr[max_corr_idx - len(watermark_signal) : max_corr_idx + len(watermark_signal)] = 0
     print('start', possible_start_times)
     return possible_start_times
 

@@ -14,6 +14,7 @@ if __name__ == "__main__":
                         help='sample rate of voices to work on')
     args = parser.parse_args()
 
+    # Configure paths with your project structure 
     welcome_watermark, _ = load_audio('watermark_1.mp3', args.sr)
     goodbye_watermark, _ = load_audio('watermark_2.mp3', args.sr)
 
